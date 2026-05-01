@@ -263,4 +263,4 @@ Everything here is for educational purposes. Use the code however you want for l
 
 ---
 
-If you have questions about the materials or want to suggest improvements, open an issue. For private tutoring inquiries, same thing: start with an issue and we can take it from there.
+If you have questions about the materials or want to suggest improvements, open an issue. For private tutoring inquiries, reach out to tamilarasanbakthavatchalam@gmail.com.
