@@ -6,7 +6,7 @@ The main idea is simple: you don't really understand something until you've buil
 
 ## What's the approach?
 
-I find that most people learn better when they can see the whole picture—from the math to the actual running code. So everything here includes:
+I find that most people learn better when they can see the whole picture: from the math to the actual running code. So everything here includes:
 
 - The underlying math and intuition
 - Implementations from scratch (minimal dependencies)
@@ -190,7 +190,7 @@ You don't have to follow this exactly, but jumping straight to transformers with
 
 **If you're learning on your own:**
 - Read the code before you run it. Everything is commented pretty heavily.
-- Don't just run the demos—modify them. Change hyperparameters, break things, see what happens.
+- Don't just run the demos. Modify them, change hyperparameters, break things, see what happens.
 - Try implementing small variations yourself.
 - The code is meant to be readable, not production-ready. Focus on understanding the concepts.
 
@@ -251,11 +251,11 @@ You don't have to follow this exactly, but jumping straight to transformers with
 - Efficient transformer variants
 - RAG and retrieval methods
 
-This is a living repo—I add new materials as I teach new topics or find better ways to explain existing ones.
+This is a living repo. I add new materials as I teach new topics or find better ways to explain existing ones.
 
 ## Contributing
 
-This is mainly for my own tutoring work, but if you spot bugs or have suggestions, feel free to open an issue. Just keep in mind that the goal here is teaching, not performance—so "this could be 10x faster if..." suggestions might not be the priority. Clarity wins over optimization.
+This is mainly for my own tutoring work, but if you spot bugs or have suggestions, feel free to open an issue. Just keep in mind that the goal here is teaching, not performance, so "this could be 10x faster if..." suggestions might not be the priority. Clarity wins over optimization.
 
 ## License
 
@@ -263,4 +263,4 @@ Everything here is for educational purposes. Use the code however you want for l
 
 ---
 
-If you have questions about the materials or want to suggest improvements, open an issue. For private tutoring inquiries, same thing—start with an issue and we can take it from there.
+If you have questions about the materials or want to suggest improvements, open an issue. For private tutoring inquiries, same thing: start with an issue and we can take it from there.
