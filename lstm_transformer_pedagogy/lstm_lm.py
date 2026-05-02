@@ -95,29 +95,38 @@ print("Training complete!\n")
 # ------------------------------------------------------------
 print("--- Test the LSTM ---")
 print("Enter a 3‑word context. Unknown words will be mapped to the first word in vocabulary.")
-test_input = input("Context (3 words): ").strip()
-if not test_input:
-    test_input = "and i do"
-    print(f"Using default: '{test_input}'")
+print("Type 'exit' or 'quit' to end the test.")
 
-test_words = test_input.split()
-if len(test_words) != 3:
-    print(f"Warning: You gave {len(test_words)} word(s). Using last 3 words or padding.")
-    # Pad or truncate to exactly 3 words
-    if len(test_words) < 3:
-        test_words = [vocab[0]] * (3 - len(test_words)) + test_words
-    else:
-        test_words = test_words[-3:]
+while True:
+    test_input = input("\nContext (3 words): ").strip()
+    
+    if test_input.lower() in ['exit', 'quit']:
+        print("Exiting test mode.")
+        break
+        
+    if not test_input:
+        print("Please enter a context.")
+        continue
 
-print(f"\nContext: {' '.join(test_words)}")
+    test_words = test_input.split()
+    if len(test_words) != 3:
+        print(f"Warning: You gave {len(test_words)} word(s). Using last 3 words or padding.")
+        # Pad or truncate to exactly 3 words
+        if len(test_words) < 3:
+            test_words = [vocab[0]] * (3 - len(test_words)) + test_words
+        else:
+            test_words = test_words[-3:]
 
-# Convert to indices (unknown -> 0)
-indices = [word2idx.get(w, 0) for w in test_words]
-tensor_input = torch.tensor([indices], dtype=torch.long)
+    print(f"Context: {' '.join(test_words)}")
 
-with torch.no_grad():
-    pred_idx = model(tensor_input).argmax().item()
-    predicted_word = idx2word[pred_idx]
+    # Convert to indices (unknown -> 0)
+    indices = [word2idx.get(w, 0) for w in test_words]
+    tensor_input = torch.tensor([indices], dtype=torch.long)
 
-print(f"LSTM prediction for next word: '{predicted_word}'")
+    with torch.no_grad():
+        pred_idx = model(tensor_input).argmax().item()
+        predicted_word = idx2word[pred_idx]
+
+    print(f"LSTM prediction for next word: '{predicted_word}'")
+
 print("\nNote: The LSTM generalizes to unseen contexts and handles longer dependencies better than a simple RNN.")

@@ -94,7 +94,7 @@ print(f"{Colors.CYAN}Example 3:{Colors.ENDC} '{X_str_train[2]} [MASK]' -> Target
 print("The model CANNOT just copy the first word. It must understand the relationship:")
 print(f"Country -> Language. But the clue is {SEQ_LEN - 1} words away from the prediction point!")
 
-pause_for_audience()
+#pause_for_audience()
 
 # --- 2. PyTorch Architectures ---
 class LSTM_Model(nn.Module):
@@ -123,8 +123,7 @@ class Transformer_Model(nn.Module):
         positions = torch.arange(0, seq_len, device=x.device).unsqueeze(0).expand(x.size(0), -1)
         emb = self.embedding(x) + self.pos_embedding(positions)
         
-        attn_output, attn_weights = self.attention(emb, emb, emb)
-        
+        attn_output, attn_weights = self.attention(emb, emb, emb, average_attn_weights=False)
         return self.fc(attn_output[:, -1, :]), attn_weights
 
 lstm_model = LSTM_Model()
@@ -139,7 +138,7 @@ epochs = 40
 
 # --- 3. Live Test Setup ---
 test_X_str, test_y_str, test_X, test_y = generate_corpus(1)
-test_country = test_X_str[0].split()[0]
+test_country = next(c for c in country_language_pairs.keys() if test_X_str[0].startswith(c))
 
 def evaluate_models(title, is_trained=False):
     print(f"\n{Colors.YELLOW}{title}{Colors.ENDC}")
@@ -155,10 +154,9 @@ def evaluate_models(title, is_trained=False):
         trans_pred_logits, attn_weights = trans_model(test_X)
         trans_pred_idx = trans_pred_logits.argmax(dim=1).item()
         
-        # PyTorch averages the attention across the 2 heads. 
-        # Since 1 head locks on completely (100%), the average is 50%.
-        # We multiply by 2 to show the raw attention of the primary head.
-        clue_attention = attn_weights[0, -1, 0].item() * 200
+        # attn_weights is (batch, num_heads, tgt_len, src_len) because average_attn_weights=False
+        # We take the max attention paid by ANY head from the last token to the first token
+        clue_attention = attn_weights[0, :, -1, 0].max().item() * 100
 
     lstm_pred_word = idx_to_word[lstm_pred_idx]
     trans_pred_word = idx_to_word[trans_pred_idx]
@@ -196,7 +194,7 @@ def evaluate_models(title, is_trained=False):
 
 # --- Run Before Training Test ---
 evaluate_models("BEFORE TRAINING: The Inference Test", is_trained=False)
-pause_for_audience()
+#pause_for_audience()
 
 # --- 4. Live Training ---
 print(f"{Colors.YELLOW}--- Live Training ---{Colors.ENDC}")
@@ -235,18 +233,24 @@ def train_transformer_visually():
             opt_trans.step()
         
         if epoch == 14:
-            _, attn_weights = trans_model(X_train[0:1])
-            weight = attn_weights[0, -1, 0].item() * 100
+            trans_model.eval()
+            with torch.no_grad():
+                _, attn_weights = trans_model(test_X)
+            weight = attn_weights[0, :, -1, 0].max().item() * 100
             print(f"  [Epoch 15] Attention on clues forming... ({weight:5.1f}%)")
+            trans_model.train()
         elif epoch == 39:
-            _, attn_weights = trans_model(X_train[0:1])
-            weight = attn_weights[0, -1, 0].item() * 200
+            trans_model.eval()
+            with torch.no_grad():
+                _, attn_weights = trans_model(test_X)
+            weight = attn_weights[0, :, -1, 0].max().item() * 100
             print(f"  [Epoch 40] Attention firmly locked on the Country! ({weight:5.1f}%)")
+            trans_model.train()
 
 train_lstm()
 train_transformer_visually()
 
-pause_for_audience()
+#pause_for_audience()
 
 # --- Run After Training Test ---
 evaluate_models("AFTER TRAINING: The Inference Test", is_trained=True)
