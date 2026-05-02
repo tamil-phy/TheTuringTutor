@@ -45,7 +45,13 @@ for i in range(len(tokens) - context_size):
 X_tensor = torch.tensor(X_train, dtype=torch.long)
 y_tensor = torch.tensor(y_train, dtype=torch.long)
 print(f"Created {len(X_train)} training examples.")
-print(f"Example: context {[idx2word[i] for i in X_train[0]]} -> next word '{idx2word[y_train[0]]}'\n")
+
+if len(X_train) > 0:
+    print(f"Example: context {[idx2word[i] for i in X_train[0]]} -> next word '{idx2word[y_train[0]]}'\n")
+else:
+    print("Error: Not enough words to create training examples. Please provide a corpus with at least 4 words.\n")
+    import sys
+    sys.exit(1)
 
 # ------------------------------------------------------------
 # 4. DEFINE LSTM MODEL

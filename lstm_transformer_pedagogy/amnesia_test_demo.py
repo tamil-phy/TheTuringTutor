@@ -10,6 +10,10 @@ print("=" * 65)
 print("THE AMNESIA TEST: LSTM vs Transformer (Context Memory)")
 print("=" * 65)
 
+def pause_for_audience():
+    input("\n[Press Enter to continue...]")
+    print("\033[A\033[K\r", end="")
+
 # --- 1. The Transparent Corpus ---
 print("--- 1. The Training Corpus ---")
 print("We are building a transparent corpus of 5,000 text strings.")
@@ -49,6 +53,8 @@ print(f"\nExample 1: '{X_str_train[0]}' -> Target: '{y_str_train[0]}'")
 print(f"Example 2: '{X_str_train[1]}' -> Target: '{y_str_train[1]}'")
 print(f"Example 3: '{X_str_train[1200]}' -> Target: '{y_str_train[1200]}'\n")
 
+pause_for_audience()
+
 # --- 2. PyTorch Architectures ---
 class LSTM_Model(nn.Module):
     def __init__(self):
@@ -85,8 +91,7 @@ class Transformer_Model(nn.Module):
 import warnings
 warnings.filterwarnings("ignore") # Clean presentation
 
-# --- 3. Live Training ---
-print("--- 2. Live Training (No Messy Math) ---")
+# --- 3. Model Setup ---
 lstm_model = LSTM_Model()
 trans_model = Transformer_Model()
 
@@ -145,35 +150,62 @@ def train_transformer_visually():
             weight = attn_weights[0, -1, 0].item() * 100
             print(f"  [Epoch 30]  Last Token looks at First Token: {weight:5.1f}% (The O(1) Shortcut is built!)")
 
-train_lstm()
-train_transformer_visually()
-print()
-
-# --- 4. The Live Test ---
-print("--- 3. The Live Test ---")
+# --- 4. The Live Test (Before & After) ---
 test_X_str, test_y_str, test_X, test_y = generate_corpus(1)
 
-print(f"Unseen Test String: '{test_X_str[0]}'")
-print(f"Target Answer:      '{test_y_str[0]}'")
-print("-" * 30)
+def evaluate_models(title, is_trained=False):
+    print(f"\n{title}")
+    print(f"Unseen Test String: '{test_X_str[0]}'")
+    print(f"Target Answer:      '{test_y_str[0]}'")
+    print("-" * 30)
 
-with torch.no_grad():
-    lstm_pred_idx = lstm_model(test_X).argmax(dim=1).item()
-    trans_pred_logits, _ = trans_model(test_X)
-    trans_pred_idx = trans_pred_logits.argmax(dim=1).item()
+    lstm_model.eval()
+    trans_model.eval()
 
-lstm_pred_char = idx_to_char[lstm_pred_idx]
-trans_pred_char = idx_to_char[trans_pred_idx]
+    with torch.no_grad():
+        lstm_pred_idx = lstm_model(test_X).argmax(dim=1).item()
+        trans_pred_logits, _ = trans_model(test_X)
+        trans_pred_idx = trans_pred_logits.argmax(dim=1).item()
 
-print(f"LSTM Predicted:        '{lstm_pred_char}' ", end="")
-if lstm_pred_char == test_y_str[0]:
-    print("(Surprising Success!)")
-else:
-    print("(Failed! The Vanishing Gradient destroyed the memory of the first letter)")
+    lstm_pred_char = idx_to_char[lstm_pred_idx]
+    trans_pred_char = idx_to_char[trans_pred_idx]
 
-print(f"Transformer Predicted: '{trans_pred_char}' ", end="")
-if trans_pred_char == test_y_str[0]:
-    print("(Success! Attention instantly retrieved the first letter)")
-else:
-    print("(Failed!)")
-print()
+    print(f"LSTM Predicted:        '{lstm_pred_char}' ", end="")
+    if lstm_pred_char == test_y_str[0]:
+        if not is_trained:
+            print("(Lucky Guess! 1/26 chance)")
+        else:
+            print("(Surprising Success!)")
+    else:
+        if not is_trained:
+            print("(Failed! Model has random weights)")
+        else:
+            print("(Failed! Vanishing Gradient destroyed the memory of the first letter)")
+
+    print(f"Transformer Predicted: '{trans_pred_char}' ", end="")
+    if trans_pred_char == test_y_str[0]:
+        if not is_trained:
+            print("(Lucky Guess! 1/26 chance)")
+        else:
+            print("(Success! Attention instantly retrieved the first letter)")
+    else:
+        if not is_trained:
+            print("(Failed! Model has random weights)")
+        else:
+            print("(Failed!)")
+    print()
+    
+    lstm_model.train()
+    trans_model.train()
+
+evaluate_models("--- 2. BEFORE TRAINING: The Live Test ---", is_trained=False)
+
+pause_for_audience()
+
+print("--- 3. Live Training (No Messy Math) ---")
+train_lstm()
+train_transformer_visually()
+
+pause_for_audience()
+
+evaluate_models("--- 4. AFTER TRAINING: The Live Test ---", is_trained=True)
